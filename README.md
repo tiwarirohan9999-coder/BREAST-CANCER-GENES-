@@ -1,129 +1,111 @@
-#  Heart Attack Risk Prediction
+# Breast Cancer Survival Prediction Report
 
-A machine learning project that predicts whether a patient is at risk of a heart attack using clinical parameters like age, cholesterol, blood pressure, chest pain type, and more.
+A Jupyter notebook that analyzes the **METABRIC** breast cancer gene-expression and clinical
+dataset to explore factors associated with patient survival and to build/compare two
+machine-learning models that predict patient outcome (Deceased vs. Alive).
 
-Built as a first-year portfolio project to practice the end-to-end ML workflow: data cleaning, class balancing, model training, and evaluation.
+## Overview
 
----
+The notebook (`BREAST_CANCER_report.ipynb`) walks through a full mini data-science
+pipeline:
 
-## 📊 Dataset
-
-- **File:** `cleaned_merged_heart_dataset.csv` / `.xlsx`
-- **Records:** 1,888 patients
-- **Source:** Merged from 5 publicly available heart disease datasets (Kaggle)
-- **Target column:** `target` → `1` = heart disease risk, `0` = no heart disease risk
-
-### Features
-| Column | Description |
-|---|---|
-| age | Patient age |
-| sex | 1 = male, 0 = female |
-| cp | Chest pain type (0–3) |
-| trestbps | Resting blood pressure |
-| chol | Serum cholesterol (mg/dl) |
-| fbs | Fasting blood sugar > 120 mg/dl (1 = true) |
-| restecg | Resting ECG results |
-| thalachh | Maximum heart rate achieved |
-| exang | Exercise-induced angina (1 = yes) |
-| oldpeak | ST depression induced by exercise |
-| slope | Slope of peak exercise ST segment |
-| ca | Number of major vessels colored by fluoroscopy |
-| thal | Thalassemia (0–3) |
-| target | 1 = heart disease risk, 0 = no risk |
-
----
-
-## ⚙️ Workflow
-
-1. **Load & prepare data** — read CSV/Excel, split features/target
-2. **Train/test split** — 80/20 (or 70/30), stratified on target
-3. **Scale features** — `StandardScaler`
-4. **Balance classes** — `SMOTE` on training data only
-5. **Train 3 models:**
+1. **Load & inspect** the METABRIC dataset (clinical + gene expression + mutation features).
+2. **Explore correlations** between numeric features and the `overall_survival` target.
+3. **Visualize** the top correlated features, age vs. mutation count, and the survival
+   class balance.
+4. **Preprocess** the data — drop missing values, label-encode categorical columns,
+   scale features, and balance the classes with SMOTE.
+5. **Train and evaluate** two classifiers:
    - Logistic Regression
-   - K-Nearest Neighbors (KNN)
-   - Naive Bayes
-6. **Evaluate** — Accuracy, Recall, Precision, F1-score, Confusion Matrix
-7. **Visualize** — target distribution pie chart, accuracy comparison, recall comparison, confusion matrix
+   - Decision Tree
+6. **Compare model performance** and plot a confusion matrix for the better-performing model.
 
----
+## Dataset
 
-## 📈 Results
+- **File expected:** `METABRIC_RNA_Mutation.csv`
+- **Shape:** 1,904 rows × 693 columns (clinical attributes, gene expression values, and
+  mutation status columns)
+- **Target column:** `overall_survival` (1 = Alive, 0 = Deceased)
 
-| Model | Accuracy | Recall |
-|---|---|---|
-| Logistic Regression | ~75% | ~80% |
-| KNN (K=5) | ~92% | ~92% |
-| Naive Bayes | ~71% | ~81% |
+> The CSV is **not included** in this repo/notebook — place `METABRIC_RNA_Mutation.csv`
+> in the same directory as the notebook before running it. It's publicly available on
+> [Kaggle](https://www.kaggle.com/datasets/raghadalharbi/breast-cancer-gene-expression-profiles-metabric).
 
-> **Note:** Recall is especially important here — missing a real heart disease case (false negative) is more costly than a false alarm. KNN performed best on both accuracy and recall in this dataset.
-
-### Visualizations
-- `target_distribution_pie.png` — class balance in the dataset
-- `model_comparison.png` — accuracy across all 3 models
-- `model_comparison_recall.png` — recall across all 3 models
-- `confusion_matrix.png` — confusion matrix for the best model
-
----
-
-## 🗂️ Project Structure
+## Requirements
 
 ```
-heart-attack-prediction/
-├── data/
-│   ├── cleaned_merged_heart_dataset.csv
-│   └── raw_merged_heart_dataset.csv
-├── heart_model_training.py
-├── requirements.txt
-├── README.md
-└── .gitignore
+python >= 3.9
+pandas
+numpy
+scikit-learn
+imbalanced-learn
+matplotlib
+seaborn
+jupyter
 ```
 
----
+Install with:
 
-## 🚀 Getting Started
-
-### 1. Clone the repo
 ```bash
-git clone https://github.com/<your-username>/heart-attack-prediction.git
-cd heart-attack-prediction
+pip install pandas numpy scikit-learn imbalanced-learn matplotlib seaborn jupyter
 ```
 
-### 2. Install dependencies
-```bash
-pip install -r requirements.txt
-```
+## How to Run
 
-### 3. Run the script
-```bash
-python heart_model_training.py
-```
+1. Place `METABRIC_RNA_Mutation.csv` in the project folder.
+2. Launch Jupyter:
+   ```bash
+   jupyter notebook BREAST_CANCER_report.ipynb
+   ```
+3. Run all cells in order (`Kernel → Restart & Run All`).
 
-Make sure `cleaned_merged_heart_dataset.csv` is in the same folder as the script.
+## Pipeline Details
 
----
+| Step | Description |
+|---|---|
+| Data loading | Reads the CSV, prints shape, `info()`, and `describe()` |
+| Correlation analysis | Computes correlation of all numeric features with `overall_survival`, ranks top 10 |
+| Heatmap | Correlation heatmap of the top 10 features + target |
+| Scatter plot | `age_at_diagnosis` vs `mutation_count`, colored by survival |
+| Cleaning | Drops rows with missing values, label-encodes text/categorical columns |
+| Split & scale | 80/20 train-test split (stratified), `StandardScaler` on features |
+| Class balancing | SMOTE oversampling applied to the training set only |
+| Survival pie chart | Class distribution of Deceased vs. Alive |
+| Model 1 | Logistic Regression (`max_iter=1000`) |
+| Model 2 | Decision Tree (`max_depth=5`) |
+| Comparison | Bar chart comparing test accuracy of both models |
+| Confusion matrix | Plotted for whichever model scored higher accuracy |
 
-## 🛠️ Tech Stack
+## Results
 
-- Python
-- pandas
-- scikit-learn
-- imbalanced-learn (SMOTE)
-- matplotlib
+After dropping missing values, the cleaned dataset had **1,093 rows**; test set = 219 samples.
 
----
+| Model | Accuracy | Recall | F1 Score | MSE |
+|---|---|---|---|---|
+| Logistic Regression | 59.4% | 0.536 | 0.539 | 0.406 |
+| **Decision Tree** | **68.5%** | **0.608** | **0.631** | **0.315** |
 
-## 🔮 Future Improvements
+The **Decision Tree** classifier outperformed Logistic Regression on all metrics and is
+used for the final confusion matrix.
 
-- Add more models (Random Forest, SVM, XGBoost)
-- Hyperparameter tuning (GridSearchCV)
-- Deploy as a web app (Streamlit / Flask)
-- Add feature importance analysis
-- Cross-validation instead of single train/test split
+## Output Files
 
----
+Running the notebook generates the following image files in the working directory:
 
-## 🙋 Author
+- `heatmap.png` — correlation heatmap of top features vs. survival
+- `scatter_plot.png` — age vs. mutation count, colored by survival
+- `survival_pie_chart.png` — class distribution pie chart
+- `model_comparison.png` — accuracy bar chart (Logistic Regression vs. Decision Tree)
+- `confusion_matrix.png` — confusion matrix of the best-performing model
 
-**Rohan Tiwari**
-Researcher, TIET-UQ, CoE-DSAI
+## Notes / Possible Improvements
+
+- Class balance is only 55.7% Alive / 44.3% Deceased, so accuracy alone can be
+  misleading — recall/F1 are also reported for this reason.
+- Only two simple models are compared; results could likely be improved with
+  ensemble methods (Random Forest, Gradient Boosting) or hyperparameter tuning.
+- A large number of columns are dropped implicitly via `dropna()` — an imputation
+  strategy could preserve more of the original 1,904 rows.
+
+##  AUTHOR
+ROHAN TIWARI , RESEARCHER , CO- DSAI , TIET- UQ CENTER
